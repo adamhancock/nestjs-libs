@@ -1,0 +1,64 @@
+name: Publish Packages
+
+on:
+  workflow_dispatch:
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.get-changed-packages.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Get changed packages
+        id: get-changed-packages
+        run: |
+          CHANGED=$(git diff --name-only HEAD^ HEAD | grep '^libs/' | cut -d'/' -f2 | sort -u | jq -R -s -c 'split("\n")[:-1]')
+          echo "packages=$CHANGED" >> $GITHUB_OUTPUT
+
+  build-and-publish:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.packages != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: ${{ fromJson(needs.detect-changes.outputs.packages) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build package
+        run: cd libs/${{ matrix.package }} && pnpm run build
+
+      - name: Run tests
+        run: cd libs/${{ matrix.package }} && pnpm test
+
+      - name: Publish package
+        if: success()
+        run: |
+          cd libs/${{ matrix.package }}
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          NPM_VERSION=$(npm view @adamhancock/${{ matrix.package }}@$CURRENT_VERSION version || echo "")
+          if [ -z "$NPM_VERSION" ]; then
+            pnpm publish --no-git-checks
+          else
+            echo "Version $CURRENT_VERSION already published, skipping..."
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
