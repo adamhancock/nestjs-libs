@@ -1,0 +1,41 @@
+{
+  "name": "@adamhancock/nestjs-eventhubs",
+  "version": "0.1.0",
+  "description": "NestJS module for Azure Event Hubs integration",
+  "author": "Adam Hancock",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adamhancock/nestjs-libs.git"
+  },
+  "keywords": [
+    "nestjs",
+    "azure",
+    "event-hubs",
+    "eventhubs"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "pnpm exec tsc -p tsconfig.lib.json",
+    "prepublishOnly": "pnpm run build"
+  },
+  "peerDependencies": {
+    "@azure/event-hubs": "^5.12.2",
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/config": "^3.3.0",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
