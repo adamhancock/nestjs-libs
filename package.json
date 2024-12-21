@@ -73,7 +73,8 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@adamhancock/nestjs-eventhubs(|/.*)$": "<rootDir>/libs/nestjs-eventhubs/src/$1"
+      "^@adamhancock/nestjs-eventhubs(|/.*)$": "<rootDir>/libs/nestjs-eventhubs/src/$1",
+      "^@adamhancock/nestjs-connectwise-psa(|/.*)$": "<rootDir>/libs/nestjs-connectwise-psa/src/$1"
     }
   }
 }
